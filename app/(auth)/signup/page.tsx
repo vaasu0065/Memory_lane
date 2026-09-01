@@ -1,0 +1,38 @@
+import { signIn } from "@/lib/auth";
+import Link from "next/link";
+
+export default function SignupPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="max-w-sm w-full bg-paper border border-muted p-8 rounded shadow-[4px_4px_0px_0px_#A9A08C]">
+        <h1 className="font-serif text-3xl font-bold text-ink mb-6 text-center">
+          Join Memory Lane
+        </h1>
+        <p className="text-center text-muted mb-8">
+          Create an account to start your digital photo album.
+        </p>
+
+        <form
+          action={async () => {
+            "use server";
+            await signIn("google", { redirectTo: "/home" });
+          }}
+        >
+          <button
+            type="submit"
+            className="w-full bg-accent text-paper py-3 px-4 rounded font-medium hover:bg-opacity-90 transition-opacity flex justify-center items-center gap-2"
+          >
+            Sign up with Google
+          </button>
+        </form>
+
+        <div className="mt-8 text-center text-sm text-muted">
+          Already have an account?{" "}
+          <Link href="/login" className="text-accent hover:underline">
+            Log in
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

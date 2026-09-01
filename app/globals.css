@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-paper: #000000; /* Pitch black for starfield */
+    --color-ink: #ffffff;   /* Pure white text */
+    --color-accent: #ec4899; /* Vibrant pink */
+    --color-muted: #9ca3af;
+    --color-stamp: #fef08a;
+  }
+
+  body {
+    @apply text-ink font-sans antialiased min-h-screen relative overflow-x-hidden;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+}
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
