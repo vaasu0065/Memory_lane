@@ -5,6 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, OrbitControls, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { Image as PrismaImage } from "@prisma/client";
+import { ErrorBoundary } from "react-error-boundary";
 
 // Pure mathematical definition of our Gaussian-damped Cycloid
 function evaluateRibbon(t: number, R: number, A: number) {
@@ -179,18 +180,20 @@ function RibbonScene({ images }: { images: PrismaImage[] }) {
         const image = images[i % images.length];
 
         return (
-          <Suspense fallback={null} key={i}>
-            <DynamicRibbonSegment 
-              baseT0={baseT0} 
-              segmentLength={SEGMENT_LENGTH} 
-              trackLength={TRACK_LENGTH}
-              width={WIDTH} 
-              imageUrl={image.thumbUrl} 
-              progressRef={progressRef}
-              R={R}
-              A={A}
-            />
-          </Suspense>
+          <ErrorBoundary key={i} FallbackComponent={() => null}>
+            <Suspense fallback={null}>
+              <DynamicRibbonSegment 
+                baseT0={baseT0} 
+                segmentLength={SEGMENT_LENGTH} 
+                trackLength={TRACK_LENGTH}
+                width={WIDTH} 
+                imageUrl={image.thumbUrl} 
+                progressRef={progressRef}
+                R={R}
+                A={A}
+              />
+            </Suspense>
+          </ErrorBoundary>
         );
       })}
     </group>
