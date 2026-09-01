@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { signIn } from "@/lib/auth";
 import Link from "next/link";
 
