@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getPresignedUrl } from "@/lib/r2";
 import { auth } from "@/lib/auth";
