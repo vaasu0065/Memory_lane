@@ -11,6 +11,6 @@ export default {
   pages: {
     signIn: "/login",
   },
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.AUTH_SECRET || "fallback_secret_for_build_only",
   trustHost: true,
 } satisfies NextAuthConfig;
