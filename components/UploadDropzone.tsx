@@ -92,22 +92,41 @@ export default function UploadDropzone({ sectionId }: { sectionId: string }) {
             headers: { "Content-Type": "application/json" }
           });
         } else if (item.file) {
-          // Standard R2/Mock upload flow for local files
-          const presignRes = await fetch("/api/upload/presign", {
+          // Cloudinary signed upload flow
+          const signRes = await fetch("/api/upload/presign", {
             method: "POST",
-            body: JSON.stringify({ filename: item.file.name, contentType: item.file.type }),
+            body: JSON.stringify({ sectionId }),
           });
-          const { url, key } = await presignRes.json();
+          const { signature, timestamp, apiKey, cloudName, folder } = await signRes.json();
 
-          await fetch(url, {
-            method: "PUT",
-            body: item.file,
-            headers: { "Content-Type": item.file.type },
-          });
+          const formData = new FormData();
+          formData.append("file", item.file);
+          formData.append("api_key", apiKey);
+          formData.append("timestamp", timestamp.toString());
+          formData.append("signature", signature);
+          formData.append("folder", folder);
 
-          await fetch("/api/upload/complete", {
+          const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
             method: "POST",
-            body: JSON.stringify({ key, sectionId }),
+            body: formData,
+          });
+          
+          if (!uploadRes.ok) {
+            throw new Error("Failed to upload to Cloudinary");
+          }
+          
+          const uploadData = await uploadRes.json();
+
+          // Save the absolute Cloudinary URL directly to the database using the external endpoint
+          await fetch("/api/upload/external", {
+            method: "POST",
+            body: JSON.stringify({ 
+              url: uploadData.secure_url, 
+              sectionId,
+              width: uploadData.width,
+              height: uploadData.height
+            }),
+            headers: { "Content-Type": "application/json" }
           });
         }
       } catch (err) {
