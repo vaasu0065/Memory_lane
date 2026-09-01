@@ -1,9 +1,9 @@
 import { v2 as cloudinary } from "cloudinary";
 
-// The CLOUDINARY_URL is automatically picked up by the SDK if set in the environment.
-// But we explicitly configure it here just in case.
+// We explicitly configure it here to ensure Next.js passes the env var correctly
 cloudinary.config({
   secure: true,
+  url: process.env.CLOUDINARY_URL
 });
 
 export function getCloudinarySignature(folder: string) {
