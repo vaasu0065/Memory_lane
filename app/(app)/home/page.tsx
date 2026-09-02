@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
 import { getLayoutComponent } from "@/lib/theme-to-layout";
+import Navbar from "@/components/Navbar";
 
 export default async function HomePage() {
   const session = await auth();
@@ -14,19 +15,15 @@ export default async function HomePage() {
     orderBy: { createdAt: "desc" },
   });
 
+  const handleSignOut = async () => {
+    "use server";
+    const { signOut } = await import("@/lib/auth");
+    await signOut({ redirectTo: "/login" });
+  };
+
   return (
     <div className="min-h-screen px-8 pt-32 pb-16 max-w-7xl mx-auto space-y-24">
-      <header className="fixed top-8 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl z-50 flex justify-between items-center bg-white/10 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/20 px-8 py-4 rounded-full">
-        <h1 className="font-serif text-3xl font-bold text-white drop-shadow-md">Memory Lane</h1>
-        <div className="flex gap-6 items-center">
-          <Link href="/section/new" className="bg-white/20 text-white px-6 py-2.5 rounded-full shadow-sm hover:shadow hover:bg-white/30 hover:-translate-y-0.5 transition-all font-medium">
-            New Album
-          </Link>
-          <form action={async () => { "use server"; const { signOut } = await import("@/lib/auth"); await signOut({ redirectTo: "/login" }); }}>
-            <button className="text-white/60 hover:text-white font-medium transition-colors">Sign out</button>
-          </form>
-        </div>
-      </header>
+      <Navbar signOutAction={handleSignOut} />
 
       {sections.length === 0 ? (
         <div className="text-center text-muted border-2 border-dashed border-muted/30 p-12 rounded">
