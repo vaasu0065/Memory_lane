@@ -6,6 +6,7 @@ import { Environment, OrbitControls, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { Image as PrismaImage } from "@prisma/client";
 import { ErrorBoundary } from "react-error-boundary";
+import { useInView } from "react-intersection-observer";
 
 // Pure mathematical definition of our Gaussian-damped Cycloid
 function evaluateRibbon(t: number, R: number, A: number) {
@@ -242,12 +243,14 @@ function RibbonScene({ images }: { images: PrismaImage[] }) {
 }
 
 export default function TwistedFilmstrip({ images }: { images: PrismaImage[] }) {
+  const { ref, inView } = useInView({ threshold: 0 });
+
   if (!images || images.length === 0) return null;
 
   return (
     // Break out of parent container to span the ENTIRE screen horizontally!
-    <div className="w-[100vw] h-[85vh] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mt-8 overflow-hidden pointer-events-none">
-      <Canvas camera={{ position: [0, 5, 80], fov: 45 }}>
+    <div ref={ref} className="w-[100vw] h-[85vh] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mt-8 overflow-hidden pointer-events-none">
+      <Canvas frameloop={inView ? "always" : "demand"} camera={{ position: [0, 5, 80], fov: 45 }}>
         <ambientLight intensity={0.6} />
         <directionalLight position={[20, 30, 20]} intensity={1.5} />
         <Environment preset="city" />
