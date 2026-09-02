@@ -108,10 +108,10 @@ function DynamicRibbonSegment({
       const vertexIndex = i * 2;
       const segmentProgress = i / segments;
       
-      uvs[vertexIndex * 2 + 0] = segmentProgress;
+      uvs[vertexIndex * 2 + 0] = 1 - segmentProgress;
       uvs[vertexIndex * 2 + 1] = 1;
       
-      uvs[(vertexIndex + 1) * 2 + 0] = segmentProgress;
+      uvs[(vertexIndex + 1) * 2 + 0] = 1 - segmentProgress;
       uvs[(vertexIndex + 1) * 2 + 1] = 0;
 
       if (i < segments) {

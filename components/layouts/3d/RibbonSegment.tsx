@@ -66,16 +66,16 @@ export default function RibbonSegment({ curve, t0, t1, width, imageUrl }: Ribbon
       positions[vertexIndex * 3 + 0] = topPos.x;
       positions[vertexIndex * 3 + 1] = topPos.y;
       positions[vertexIndex * 3 + 2] = topPos.z;
-      // UV mapping: u goes from 0 to 1 along the segment, v is 1 (top)
-      uvs[vertexIndex * 2 + 0] = segmentProgress;
+      // UV mapping: u goes from 1 to 0 to flip horizontally, v is 1 (top)
+      uvs[vertexIndex * 2 + 0] = 1 - segmentProgress;
       uvs[vertexIndex * 2 + 1] = 1;
 
       // Assign Bottom Vertex
       positions[(vertexIndex + 1) * 3 + 0] = bottomPos.x;
       positions[(vertexIndex + 1) * 3 + 1] = bottomPos.y;
       positions[(vertexIndex + 1) * 3 + 2] = bottomPos.z;
-      // UV mapping: u goes from 0 to 1 along the segment, v is 0 (bottom)
-      uvs[(vertexIndex + 1) * 2 + 0] = segmentProgress;
+      // UV mapping: u goes from 1 to 0 to flip horizontally, v is 0 (bottom)
+      uvs[(vertexIndex + 1) * 2 + 0] = 1 - segmentProgress;
       uvs[(vertexIndex + 1) * 2 + 1] = 0;
 
       // Create triangles (indices)
