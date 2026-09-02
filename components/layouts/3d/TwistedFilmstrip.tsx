@@ -53,24 +53,24 @@ function DynamicRibbonSegment({
   R,
   A
 }: DynamicRibbonSegmentProps) {
-  // Use the robust useTexture hook which perfectly handles WebGL internals
   const texture = useTexture(imageUrl);
   texture.wrapS = THREE.ClampToEdgeWrapping;
   texture.wrapT = THREE.ClampToEdgeWrapping;
   
-  const geoRef = useRef<THREE.BufferGeometry>(null);
-  const segments = 40; // Extremely high subdivision for flawless, liquid-smooth bending
+  const geoFrontRef = useRef<THREE.BufferGeometry>(null);
+  const geoBackRef = useRef<THREE.BufferGeometry>(null);
+  const segments = 40; 
 
   useFrame(() => {
-    if (!geoRef.current) return;
-    const positions = geoRef.current.attributes.position.array as Float32Array;
+    if (!geoFrontRef.current || !geoBackRef.current) return;
+    const posFront = geoFrontRef.current.attributes.position.array as Float32Array;
+    const posBack = geoBackRef.current.attributes.position.array as Float32Array;
 
     const offset = progressRef.current;
     
-    // Perfect Ring Buffer Wrap!
     const tStart = -trackLength / 2;
     let relativeT = (baseT0 + offset - tStart) % trackLength;
-    if (relativeT < 0) relativeT += trackLength; // Handle negative JS modulo
+    if (relativeT < 0) relativeT += trackLength;
     
     const localT0 = tStart + relativeT;
     const localT1 = localT0 + segmentLength;
@@ -85,34 +85,57 @@ function DynamicRibbonSegment({
       const bottomPos = new THREE.Vector3().copy(pos).addScaledVector(binormal, -width / 2);
 
       const vertexIndex = i * 2;
-      positions[vertexIndex * 3 + 0] = topPos.x;
-      positions[vertexIndex * 3 + 1] = topPos.y;
-      positions[vertexIndex * 3 + 2] = topPos.z;
+      
+      // Update Front positions
+      posFront[vertexIndex * 3 + 0] = topPos.x;
+      posFront[vertexIndex * 3 + 1] = topPos.y;
+      posFront[vertexIndex * 3 + 2] = topPos.z;
 
-      positions[(vertexIndex + 1) * 3 + 0] = bottomPos.x;
-      positions[(vertexIndex + 1) * 3 + 1] = bottomPos.y;
-      positions[(vertexIndex + 1) * 3 + 2] = bottomPos.z;
+      posFront[(vertexIndex + 1) * 3 + 0] = bottomPos.x;
+      posFront[(vertexIndex + 1) * 3 + 1] = bottomPos.y;
+      posFront[(vertexIndex + 1) * 3 + 2] = bottomPos.z;
+      
+      // Mirror to Back positions
+      posBack[vertexIndex * 3 + 0] = topPos.x;
+      posBack[vertexIndex * 3 + 1] = topPos.y;
+      posBack[vertexIndex * 3 + 2] = topPos.z;
+
+      posBack[(vertexIndex + 1) * 3 + 0] = bottomPos.x;
+      posBack[(vertexIndex + 1) * 3 + 1] = bottomPos.y;
+      posBack[(vertexIndex + 1) * 3 + 2] = bottomPos.z;
     }
 
-    geoRef.current.attributes.position.needsUpdate = true;
-    geoRef.current.computeVertexNormals();
+    geoFrontRef.current.attributes.position.needsUpdate = true;
+    geoFrontRef.current.computeVertexNormals();
+    
+    geoBackRef.current.attributes.position.needsUpdate = true;
+    geoBackRef.current.computeVertexNormals();
   });
 
-  const { initialPositions, uvs, indices } = useMemo(() => {
+  const { initialPositions, uvsFront, uvsBack, indices } = useMemo(() => {
     const vertexCount = (segments + 1) * 2;
     const initialPositions = new Float32Array(vertexCount * 3);
-    const uvs = new Float32Array(vertexCount * 2);
+    const uvsFront = new Float32Array(vertexCount * 2);
+    const uvsBack = new Float32Array(vertexCount * 2);
     const indices = [];
 
     for (let i = 0; i <= segments; i++) {
       const vertexIndex = i * 2;
       const segmentProgress = i / segments;
       
-      uvs[vertexIndex * 2 + 0] = 1 - segmentProgress;
-      uvs[vertexIndex * 2 + 1] = 1;
+      // Front side UVs: Flipped U and V to rotate 180 degrees
+      uvsFront[vertexIndex * 2 + 0] = 1 - segmentProgress;
+      uvsFront[vertexIndex * 2 + 1] = 0;
       
-      uvs[(vertexIndex + 1) * 2 + 0] = 1 - segmentProgress;
-      uvs[(vertexIndex + 1) * 2 + 1] = 0;
+      uvsFront[(vertexIndex + 1) * 2 + 0] = 1 - segmentProgress;
+      uvsFront[(vertexIndex + 1) * 2 + 1] = 1;
+      
+      // Back side UVs: Flipped V but standard U to read normally from behind, rotated 180
+      uvsBack[vertexIndex * 2 + 0] = segmentProgress;
+      uvsBack[vertexIndex * 2 + 1] = 0;
+      
+      uvsBack[(vertexIndex + 1) * 2 + 0] = segmentProgress;
+      uvsBack[(vertexIndex + 1) * 2 + 1] = 1;
 
       if (i < segments) {
         const a = i * 2;
@@ -123,25 +146,43 @@ function DynamicRibbonSegment({
         indices.push(a, d, c);
       }
     }
-    return { initialPositions, uvs, indices };
+    return { initialPositions, uvsFront, uvsBack, indices };
   }, [segments]);
 
   return (
-    <mesh frustumCulled={false}>
-      <bufferGeometry ref={geoRef}>
-        <bufferAttribute attach="attributes-position" count={(segments + 1) * 2} array={initialPositions} itemSize={3} />
-        <bufferAttribute attach="attributes-uv" count={(segments + 1) * 2} array={uvs} itemSize={2} />
-        <bufferAttribute attach="index" array={new Uint16Array(indices)} count={indices.length} itemSize={1} />
-      </bufferGeometry>
-      <meshStandardMaterial 
-        map={texture} 
-        // If texture is still loading, show a dark grey placeholder to prevent invisible gaps
-        color={texture ? "#ffffff" : "#222222"}
-        side={THREE.DoubleSide} 
-        roughness={0.3}
-        metalness={0.2}
-      />
-    </mesh>
+    <group>
+      {/* Front Side Mesh */}
+      <mesh frustumCulled={false}>
+        <bufferGeometry ref={geoFrontRef}>
+          <bufferAttribute attach="attributes-position" count={(segments + 1) * 2} array={initialPositions} itemSize={3} />
+          <bufferAttribute attach="attributes-uv" count={(segments + 1) * 2} array={uvsFront} itemSize={2} />
+          <bufferAttribute attach="index" array={new Uint16Array(indices)} count={indices.length} itemSize={1} />
+        </bufferGeometry>
+        <meshStandardMaterial 
+          map={texture} 
+          color={texture ? "#ffffff" : "#222222"}
+          side={THREE.FrontSide} 
+          roughness={0.3}
+          metalness={0.2}
+        />
+      </mesh>
+      
+      {/* Back Side Mesh (renders perfectly on the flip side with un-mirrored text) */}
+      <mesh frustumCulled={false}>
+        <bufferGeometry ref={geoBackRef}>
+          <bufferAttribute attach="attributes-position" count={(segments + 1) * 2} array={initialPositions} itemSize={3} />
+          <bufferAttribute attach="attributes-uv" count={(segments + 1) * 2} array={uvsBack} itemSize={2} />
+          <bufferAttribute attach="index" array={new Uint16Array(indices)} count={indices.length} itemSize={1} />
+        </bufferGeometry>
+        <meshStandardMaterial 
+          map={texture} 
+          color={texture ? "#ffffff" : "#222222"}
+          side={THREE.BackSide} 
+          roughness={0.3}
+          metalness={0.2}
+        />
+      </mesh>
+    </group>
   );
 }
 

@@ -26,7 +26,8 @@ export default function RibbonSegment({ curve, t0, t1, width, imageUrl }: Ribbon
     // We need 2 vertices (top and bottom) for each step along the curve segment
     const vertexCount = (segments + 1) * 2;
     const positions = new Float32Array(vertexCount * 3);
-    const uvs = new Float32Array(vertexCount * 2);
+    const uvsFront = new Float32Array(vertexCount * 2);
+    const uvsBack = new Float32Array(vertexCount * 2);
     const indices = [];
 
     // computeFrenetFrames helps us calculate the 3D twist (Normal/Binormal) of the curve
@@ -66,17 +67,25 @@ export default function RibbonSegment({ curve, t0, t1, width, imageUrl }: Ribbon
       positions[vertexIndex * 3 + 0] = topPos.x;
       positions[vertexIndex * 3 + 1] = topPos.y;
       positions[vertexIndex * 3 + 2] = topPos.z;
-      // UV mapping: u goes from 1 to 0 to flip horizontally, v is 1 (top)
-      uvs[vertexIndex * 2 + 0] = 1 - segmentProgress;
-      uvs[vertexIndex * 2 + 1] = 1;
 
       // Assign Bottom Vertex
       positions[(vertexIndex + 1) * 3 + 0] = bottomPos.x;
       positions[(vertexIndex + 1) * 3 + 1] = bottomPos.y;
       positions[(vertexIndex + 1) * 3 + 2] = bottomPos.z;
-      // UV mapping: u goes from 1 to 0 to flip horizontally, v is 0 (bottom)
-      uvs[(vertexIndex + 1) * 2 + 0] = 1 - segmentProgress;
-      uvs[(vertexIndex + 1) * 2 + 1] = 0;
+      
+      // Front side UVs: Flipped U and V to rotate 180 degrees
+      uvsFront[vertexIndex * 2 + 0] = 1 - segmentProgress;
+      uvsFront[vertexIndex * 2 + 1] = 0;
+      
+      uvsFront[(vertexIndex + 1) * 2 + 0] = 1 - segmentProgress;
+      uvsFront[(vertexIndex + 1) * 2 + 1] = 1;
+      
+      // Back side UVs: Flipped V but standard U to read normally from behind, rotated 180
+      uvsBack[vertexIndex * 2 + 0] = segmentProgress;
+      uvsBack[vertexIndex * 2 + 1] = 0;
+      
+      uvsBack[(vertexIndex + 1) * 2 + 0] = segmentProgress;
+      uvsBack[(vertexIndex + 1) * 2 + 1] = 1;
 
       // Create triangles (indices)
       if (i < segments) {
@@ -85,31 +94,46 @@ export default function RibbonSegment({ curve, t0, t1, width, imageUrl }: Ribbon
         const c = (i + 1) * 2;
         const d = (i + 1) * 2 + 1;
 
-        // Triangle 1
         indices.push(a, b, d);
-        // Triangle 2
         indices.push(a, d, c);
       }
     }
 
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geo.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
-    geo.setIndex(indices);
-    geo.computeVertexNormals();
+    const geoFront = new THREE.BufferGeometry();
+    geoFront.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geoFront.setAttribute("uv", new THREE.BufferAttribute(uvsFront, 2));
+    geoFront.setIndex(indices);
+    geoFront.computeVertexNormals();
+    
+    const geoBack = new THREE.BufferGeometry();
+    geoBack.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geoBack.setAttribute("uv", new THREE.BufferAttribute(uvsBack, 2));
+    geoBack.setIndex(indices);
+    geoBack.computeVertexNormals();
 
-    return geo;
+    return { geoFront, geoBack };
   }, [curve, t0, t1, width]);
 
   return (
-    <mesh geometry={geometry}>
-      <meshStandardMaterial 
-        map={texture} 
-        side={THREE.DoubleSide} 
-        transparent={true}
-        roughness={0.4}
-        metalness={0.1}
-      />
-    </mesh>
+    <group>
+      <mesh geometry={geometry.geoFront}>
+        <meshStandardMaterial 
+          map={texture} 
+          side={THREE.FrontSide} 
+          transparent={true}
+          roughness={0.4}
+          metalness={0.1}
+        />
+      </mesh>
+      <mesh geometry={geometry.geoBack}>
+        <meshStandardMaterial 
+          map={texture} 
+          side={THREE.BackSide} 
+          transparent={true}
+          roughness={0.4}
+          metalness={0.1}
+        />
+      </mesh>
+    </group>
   );
 }
