@@ -6,6 +6,8 @@ import { getLayoutComponent } from "@/lib/theme-to-layout";
 import UploadDropzone from "@/components/UploadDropzone";
 import TemplateSelector from "@/components/TemplateSelector";
 import DeleteSectionButton from "@/components/DeleteSectionButton";
+import EditableTitle from "@/components/EditableTitle";
+import ManageImagesGrid from "@/components/ManageImagesGrid";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
@@ -92,9 +94,7 @@ export default async function SectionPage({ params }: { params: { id: string } }
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none album-header-glow"></div>
           
           <div className="relative z-10">
-            <h1 className="font-serif italic text-5xl font-semibold text-white drop-shadow-md mb-3 tracking-wide album-title">
-              {section.title}
-            </h1>
+            <EditableTitle sectionId={section.id} initialTitle={section.title} />
             <div className="flex items-center gap-2">
               <span className="px-3 py-1.5 rounded-full bg-white/20 text-xs font-bold text-white uppercase tracking-widest shadow-sm album-theme-badge">
                 {section.theme}
@@ -118,6 +118,7 @@ export default async function SectionPage({ params }: { params: { id: string } }
 
       <div className="mb-12">
         <UploadDropzone sectionId={section.id} />
+        {section.images.length > 0 && <ManageImagesGrid images={section.images} />}
       </div>
 
       {section.images.length > 0 && (
