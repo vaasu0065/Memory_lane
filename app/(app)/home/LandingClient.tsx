@@ -11,6 +11,9 @@ import TwistedFilmstrip from "@/components/layouts/3d/TwistedFilmstrip";
 export default function LandingClient({ isLoggedIn, signOutAction }: { isLoggedIn: boolean, signOutAction: () => void }) {
   return (
     <div className="min-h-screen bg-[#F9FAFB] text-gray-900 selection:bg-pink-100 overflow-x-hidden">
+      {/* Top Mask to hide scrolling text above the pill */}
+      <div className="fixed top-0 inset-x-0 h-16 bg-gradient-to-b from-[#F9FAFB] via-[#F9FAFB] to-transparent z-40 pointer-events-none"></div>
+
       {/* Navbar */}
       <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl z-50 bg-white/80 backdrop-blur-md border border-gray-200 shadow-sm rounded-full px-8 py-2">
         <div className="h-16 flex items-center justify-between">

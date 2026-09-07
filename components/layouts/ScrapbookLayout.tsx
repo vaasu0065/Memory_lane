@@ -1,7 +1,8 @@
 "use client";
 
 import { Image as PrismaImage } from "@prisma/client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, Camera, Star, Heart, Music } from "lucide-react";
 
@@ -59,6 +60,39 @@ export default function ScrapbookLayout({
   const wheelTimeout = useRef<NodeJS.Timeout | null>(null);
 
   if (!images || images.length === 0) return null;
+
+  const lightboxModal = typeof document !== 'undefined' ? createPortal(
+    <AnimatePresence>
+      {expandedImage && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+          onClick={() => setExpandedImage(null)}
+        >
+          <button className="absolute top-8 right-8 text-white/70 hover:text-white transition-colors">
+            <X size={32} />
+          </button>
+          <motion.div
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+            transition={{ type: "spring", bounce: 0.4 }}
+            className="p-4 bg-white pb-16 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={expandedImage.displayUrl}
+              alt="Expanded"
+              className="max-w-full max-h-[85vh] object-contain"
+            />
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body
+  ) : null;
 
   const IMAGES_PER_PAGE = 2;
   const IMAGES_PER_SPREAD = IMAGES_PER_PAGE * 2;
@@ -348,6 +382,7 @@ export default function ScrapbookLayout({
             <ChevronRight size={18} />
           </button>
         </div>
+        {lightboxModal}
       </div>
     );
   }
@@ -465,39 +500,7 @@ export default function ScrapbookLayout({
           </AnimatePresence>
         </div>
       </div>
+      {lightboxModal}
     </div>
-  );
-
-  /* ── Image expand modal (shared) ───────────────────────────────────────── */
-  return (
-    <AnimatePresence>
-      {expandedImage && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
-          onClick={() => setExpandedImage(null)}
-        >
-          <button className="absolute top-8 right-8 text-white/70 hover:text-white transition-colors">
-            <X size={32} />
-          </button>
-          <motion.div
-            initial={{ scale: 0.9, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.9, y: 20 }}
-            transition={{ type: "spring", bounce: 0.4 }}
-            className="p-4 bg-white pb-16 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img
-              src={expandedImage.displayUrl}
-              alt="Expanded"
-              className="max-w-full max-h-[85vh] object-contain"
-            />
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
   );
 }
