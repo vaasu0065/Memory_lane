@@ -75,16 +75,16 @@ export default async function PublicSharePage({ params }: Props) {
       )}
 
       {/* Floating Header */}
-      <header className="fixed top-8 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl z-50 flex justify-between items-center bg-black/40 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 px-8 py-4 rounded-full">
+      <header className="fixed top-8 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl z-50 flex justify-between items-center bg-gray-50 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 px-8 py-4 rounded-full">
         <div>
-          <h1 className="font-serif text-2xl md:text-3xl font-bold text-white drop-shadow-md tracking-wide">
+          <h1 className="font-serif text-2xl md:text-3xl font-bold text-gray-900 drop-shadow-md tracking-wide">
             {section.title}
           </h1>
           <div className="flex items-center gap-2 mt-1">
-            <span className="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold text-white uppercase tracking-widest shadow-sm">
+            <span className="px-2 py-0.5 rounded-full bg-white shadow-sm text-[10px] font-bold text-gray-900 uppercase tracking-widest shadow-sm">
               {section.theme}
             </span>
-            <span className="text-xs font-medium text-white/70">
+            <span className="text-xs font-medium text-gray-700">
               • {section.images.length} memories
             </span>
           </div>
@@ -100,10 +100,14 @@ export default async function PublicSharePage({ params }: Props) {
 
       {section.images.length > 0 ? (
         <div className="w-full py-8 relative pt-[120px]">
-          <Layout images={section.images} />
+          <Layout 
+            images={section.images}
+            albumTitle={section.title}
+            albumPurpose={section.purpose || undefined}
+          />
         </div>
       ) : (
-        <div className="flex items-center justify-center h-screen text-white/50 text-xl font-serif italic">
+        <div className="flex items-center justify-center h-screen text-gray-500 text-xl font-serif italic">
           This album is empty.
         </div>
       )}

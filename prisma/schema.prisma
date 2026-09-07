@@ -55,18 +55,20 @@ model VerificationToken {
 }
 
 model Section {
-  id             String   @id @default(cuid())
+  id             String       @id @default(cuid())
   userId         String
-  user           User     @relation(fields: [userId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
   title          String
-  theme          String              // "travel" | "event" | "everyday" | custom
-  layoutType     String              // "filmstrip" | "polaroid" | "mosaic"
+  purpose        String       @default("other")
+  theme          String
+  layoutType     String
   backgroundUrl  String?
   customCssUrl   String?
-  isPublic       Boolean  @default(false)
-  shareSlug      String?  @unique
+  isPublic       Boolean      @default(false)
+  shareSlug      String?      @unique
   images         Image[]
-  createdAt      DateTime @default(now())
+  stickyNotes    StickyNote[]
+  createdAt      DateTime     @default(now())
 }
 
 model Image {
@@ -81,15 +83,41 @@ model Image {
   width        Int
   height       Int
   position     Int      @default(0)
+  // Scrapbook editor position (percentage-based)
+  scrapX       Float?
+  scrapY       Float?
+  scrapRotate  Float?
   notes        Note[]
 }
 
 model Note {
-  id       String  @id @default(cuid())
-  imageId  String
-  image    Image   @relation(fields: [imageId], references: [id])
-  text     String
-  x        Float              // percentage position, 0-100
-  y        Float
-  color    String  @default("#D9A339")
+  id          String  @id @default(cuid())
+  imageId     String
+  image       Image   @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  text        String
+  x           Float              // percentage position, 0-100
+  y           Float
+  color       String  @default("#1a1a1a")
+  fontFamily  String  @default("serif")
+  fontSize    Int     @default(14)
+  isBold      Boolean @default(false)
+  isItalic    Boolean @default(true)
+  isUnderline Boolean @default(false)
+}
+
+model StickyNote {
+  id          String  @id @default(cuid())
+  sectionId   String
+  section     Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  text        String  @default("Write here...")
+  x           Float   @default(50)   // percentage position
+  y           Float   @default(50)
+  color       String  @default("#fef08a") // yellow sticky note
+  fontFamily  String  @default("serif")
+  fontSize    Int     @default(14)
+  isBold      Boolean @default(false)
+  isItalic    Boolean @default(true)
+  isUnderline Boolean @default(false)
+  page        Int     @default(1)     // which scrapbook spread page
+  createdAt   DateTime @default(now())
 }

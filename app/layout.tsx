@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
-import StarfieldBackground from "@/components/StarfieldBackground";
-
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -28,7 +26,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${fraunces.variable} antialiased`}>
-        <StarfieldBackground />
         {children}
       </body>
     </html>

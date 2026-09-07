@@ -152,8 +152,8 @@ export default function UploadDropzone({ sectionId }: { sectionId: string }) {
           onDrop={handleDrop}
           className={`h-full min-h-[160px] flex items-center justify-center border-2 border-dashed rounded-3xl p-6 text-center transition-all cursor-pointer backdrop-blur-md ${
             isDragging 
-              ? "border-white/80 bg-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.1)]" 
-              : "border-white/40 bg-white/10 hover:bg-white/30 hover:border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+              ? "border-white/80 bg-gray-100 shadow-sm shadow-[0_8px_30px_rgb(0,0,0,0.1)]" 
+              : "border-gray-300 bg-white hover:bg-gray-50 shadow-sm hover:border-gray-400 shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           }`}
         >
           <input 
@@ -173,7 +173,7 @@ export default function UploadDropzone({ sectionId }: { sectionId: string }) {
         </div>
 
         {/* URL Import */}
-        <div className="h-full min-h-[160px] flex flex-col justify-center border-2 border-white/20 rounded-3xl p-6 bg-white/20 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <div className="h-full min-h-[160px] flex flex-col justify-center border-2 border-gray-200 rounded-3xl p-6 bg-white shadow-sm backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div className="flex items-center gap-2 mb-4 text-ink/80 font-medium">
             <LinkIcon size={18} /> Import from URL
           </div>
@@ -183,7 +183,7 @@ export default function UploadDropzone({ sectionId }: { sectionId: string }) {
               placeholder="Paste an image URL here..." 
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
-              className="flex-1 bg-white/40 border border-white/50 rounded-xl px-4 py-2 text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-white/60"
+              className="flex-1 bg-gray-100 shadow-sm border border-white/50 rounded-xl px-4 py-2 text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-white/60"
             />
             <button 
               type="submit"
@@ -198,13 +198,13 @@ export default function UploadDropzone({ sectionId }: { sectionId: string }) {
 
       {/* Dynamic Staging Area */}
       {stagedItems.length > 0 && (
-        <div className="bg-white/20 backdrop-blur-xl border border-white/40 rounded-3xl p-8 shadow-[0_16px_60px_rgb(0,0,0,0.1)] mt-8">
+        <div className="bg-white shadow-sm backdrop-blur-xl border border-gray-300 rounded-3xl p-8 shadow-[0_16px_60px_rgb(0,0,0,0.1)] mt-8">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-serif italic text-2xl font-semibold text-ink drop-shadow-sm">Ready to Archive</h3>
             <button 
               onClick={confirmUpload}
               disabled={isUploading}
-              className="bg-accent hover:bg-accent/90 text-white font-medium px-6 py-3 rounded-full shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0"
+              className="bg-accent hover:bg-accent/90 text-gray-900 font-medium px-6 py-3 rounded-full shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0"
             >
               {isUploading ? (
                 <><Loader2 size={18} className="animate-spin" /> Saving Memories...</>
@@ -231,7 +231,7 @@ export default function UploadDropzone({ sectionId }: { sectionId: string }) {
                   {/* Delete Button */}
                   <button 
                     onClick={() => removeStagedItem(item.id)}
-                    className="absolute -top-3 -right-3 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full shadow-md transition-colors z-10"
+                    className="absolute -top-3 -right-3 bg-red-500 hover:bg-red-600 text-gray-900 p-1.5 rounded-full shadow-md transition-colors z-10"
                   >
                     <X size={16} />
                   </button>

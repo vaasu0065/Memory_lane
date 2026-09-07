@@ -63,7 +63,7 @@ export default function RibbonLoopLayout({ images }: RibbonLoopLayoutProps) {
         })}
 
         {/* Optional helper overlay */}
-        <div className="absolute bottom-10 text-white/40 font-bold uppercase tracking-widest text-sm pointer-events-none animate-pulse">
+        <div className="absolute bottom-10 text-gray-500 font-bold uppercase tracking-widest text-sm pointer-events-none animate-pulse">
           {isHovered ? "Paused to view" : "Hover to pause the ride"}
         </div>
       </div>

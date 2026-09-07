@@ -8,9 +8,10 @@ import Lightbox from "../Lightbox";
 
 interface FilmstripLayoutProps {
   images: (PrismaImage & { notes?: Note[] })[];
+  previewMode?: boolean;
 }
 
-export default function FilmstripLayout({ images }: FilmstripLayoutProps) {
+export default function FilmstripLayout({ images, previewMode = false }: FilmstripLayoutProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   if (!images || images.length === 0) return null;
@@ -21,6 +22,10 @@ export default function FilmstripLayout({ images }: FilmstripLayoutProps) {
   const CARD_WIDTH = 300;
   // gap-8 is 32px
   const GAP = 32;
+
+  const containerClass = previewMode 
+    ? "w-full py-8 overflow-visible bg-transparent marquee-container"
+    : "w-[100vw] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] py-8 overflow-hidden bg-transparent marquee-container";
 
   return (
     <>
@@ -37,9 +42,12 @@ export default function FilmstripLayout({ images }: FilmstripLayoutProps) {
         }
       `}} />
       
-      {/* Bleed out of the parent container to span the entire 100vw window width */}
-      <div className="w-[100vw] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] py-8 overflow-hidden bg-transparent marquee-container">
-        <div className="w-full overflow-hidden flex">
+      {/* Container adapts based on previewMode */}
+      <div className={containerClass}>
+        <div 
+          className={`w-full flex ${previewMode ? "overflow-visible" : "overflow-hidden"}`}
+          style={previewMode ? { clipPath: "polygon(0 -100%, 200vw -100%, 200vw 200%, 0 200%)" } : {}}
+        >
           <div className="flex gap-8 py-8 px-4 marquee-track">
             {marqueeImages.map((image, i) => (
               <div 

@@ -4,10 +4,10 @@
 
 @layer base {
   :root {
-    --color-paper: #000000; /* Pitch black for starfield */
-    --color-ink: #ffffff;   /* Pure white text */
+    --color-paper: #F9FAFB; /* Light gray background */
+    --color-ink: #111827;   /* Very dark gray text */
     --color-accent: #ec4899; /* Vibrant pink */
-    --color-muted: #9ca3af;
+    --color-muted: #6b7280; /* Gray 500 for muted text */
     --color-stamp: #fef08a;
   }
 

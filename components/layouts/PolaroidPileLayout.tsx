@@ -6,11 +6,16 @@ import { motion } from "framer-motion";
 
 interface PolaroidPileLayoutProps {
   images: (PrismaImage & { notes?: Note[] })[];
+  previewMode?: boolean;
 }
 
-export default function PolaroidPileLayout({ images }: PolaroidPileLayoutProps) {
+export default function PolaroidPileLayout({ images, previewMode = false }: PolaroidPileLayoutProps) {
+  const containerClass = previewMode
+    ? "w-full h-full relative overflow-visible bg-transparent flex flex-wrap justify-center items-center content-center"
+    : "w-[100vw] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] min-h-[80vh] bg-transparent py-24 px-8 md:px-24 flex flex-wrap justify-center items-center content-center album-polaroid-container";
+    
   return (
-    <div className="w-[100vw] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] min-h-[80vh] bg-transparent py-24 px-8 md:px-24 flex flex-wrap justify-center items-center content-center album-polaroid-container">
+    <div className={containerClass}>
       {images.map((image, i) => {
         // Generate pseudo-random rotations and much larger offsets for a truly "scattered" pile across the screen
         const rotation = (i * 17) % 40 - 20; // -20 to +20 degrees
@@ -30,7 +35,7 @@ export default function PolaroidPileLayout({ images }: PolaroidPileLayoutProps) 
             dragTransition={{ bounceStiffness: 200, bounceDamping: 20 }}
             whileDrag={{ scale: 1.15, zIndex: 100, cursor: "grabbing" }}
             whileHover={{ scale: 1.05, zIndex: 50 }}
-            className="w-64 h-72 flex-shrink-0 cursor-grab m-2 md:m-4 album-polaroid-item"
+            className={`${previewMode ? "w-32 h-40" : "w-64 h-72"} flex-shrink-0 cursor-grab m-1 md:m-2 album-polaroid-item`}
             // Animation: Fall from the top of the screen into their messy pile
             initial={{ opacity: 0, y: -400, rotate: 0, scale: 0.8 }}
             animate={{ 
@@ -51,7 +56,7 @@ export default function PolaroidPileLayout({ images }: PolaroidPileLayoutProps) 
               borderRadius: "4px" 
             }}
           >
-            <ImageCard image={image} index={i} layoutType="polaroid" />
+            <ImageCard image={image} index={i} layoutType="polaroid" readOnly={previewMode} />
           </motion.div>
         );
       })}

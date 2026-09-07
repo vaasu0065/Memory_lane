@@ -28,7 +28,7 @@ export default function DeleteSectionButton({ sectionId }: { sectionId: string }
     <button 
       onClick={handleDelete}
       disabled={isPending}
-      className="relative z-10 group flex items-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white px-5 py-2.5 rounded-full font-medium transition-all shadow-sm border border-red-500/20 hover:border-red-500 disabled:opacity-50"
+      className="relative z-10 group flex items-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-gray-900 px-5 py-2.5 rounded-full font-medium transition-all shadow-sm border border-red-500/20 hover:border-red-500 disabled:opacity-50"
       title="Delete Album"
     >
       {isPending ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}

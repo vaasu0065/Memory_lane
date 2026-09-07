@@ -6,10 +6,13 @@ import ImageCard from "../ImageCard";
 
 interface MosaicLayoutProps {
   images: (PrismaImage & { notes?: Note[] })[];
+  previewMode?: boolean;
 }
 
-export default function MosaicLayout({ images }: MosaicLayoutProps) {
-  const photos = images.map((image) => ({
+export default function MosaicLayout({ images, previewMode = false }: MosaicLayoutProps) {
+  const displayImages = previewMode ? images.slice(0, 6) : images;
+  
+  const photos = displayImages.map((image) => ({
     src: image.thumbUrl,
     width: image.width || 800,
     height: image.height || 600,

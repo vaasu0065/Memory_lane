@@ -6,22 +6,25 @@ const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
-  const isAuthPage = req.nextUrl.pathname.startsWith("/login") || req.nextUrl.pathname.startsWith("/signup");
+  const isAuthPage = req.nextUrl.pathname.startsWith("/login");
   const isPublicSharePage = req.nextUrl.pathname.startsWith("/share");
+  const isLandingPage = req.nextUrl.pathname === "/home" || req.nextUrl.pathname === "/";
 
   if (isAuthPage) {
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL("/home", req.nextUrl));
+      return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
     }
     return NextResponse.next();
   }
 
-  if (!isLoggedIn && !isPublicSharePage) {
+  // If not logged in, and trying to access a protected route (not public, not landing page)
+  if (!isLoggedIn && !isPublicSharePage && !isLandingPage) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
 
-  if (req.nextUrl.pathname === "/") {
-    return NextResponse.redirect(new URL(isLoggedIn ? "/home" : "/login", req.nextUrl));
+  // Optionally, if logged in and at root, redirect to dashboard
+  if (isLoggedIn && req.nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
   }
 
   return NextResponse.next();

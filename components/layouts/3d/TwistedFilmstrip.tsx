@@ -242,15 +242,27 @@ function RibbonScene({ images }: { images: PrismaImage[] }) {
   );
 }
 
-export default function TwistedFilmstrip({ images }: { images: PrismaImage[] }) {
+export default function TwistedFilmstrip({ images, previewMode = false }: { images: PrismaImage[], previewMode?: boolean }) {
   const { ref, inView } = useInView({ threshold: 0 });
 
   if (!images || images.length === 0) return null;
 
+  const containerClass = previewMode
+    ? "h-full relative overflow-visible pointer-events-none bg-transparent"
+    : "w-[100vw] h-[85vh] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mt-8 overflow-hidden pointer-events-none";
+
+  // In preview mode, pull the camera back slightly so the ribbon fits in the smaller box,
+  // and shift it to the right to compensate for the artificially widened canvas.
+  const cameraZ = previewMode ? 100 : 80;
+  const cameraX = previewMode ? 15 : 0;
+
   return (
-    // Break out of parent container to span the ENTIRE screen horizontally!
-    <div ref={ref} className="w-[100vw] h-[85vh] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mt-8 overflow-hidden pointer-events-none">
-      <Canvas frameloop={inView ? "always" : "demand"} camera={{ position: [0, 5, 80], fov: 45 }}>
+    <div 
+      ref={ref} 
+      className={containerClass}
+      style={previewMode ? { width: '150%', clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" } : {}}
+    >
+      <Canvas frameloop={inView ? "always" : "demand"} camera={{ position: [cameraX, 5, cameraZ], fov: 45 }}>
         <ambientLight intensity={0.6} />
         <directionalLight position={[20, 30, 20]} intensity={1.5} />
         <Environment preset="city" />

@@ -47,7 +47,7 @@ export default function Lightbox({ images, currentIndex, onClose, onNavigate }: 
         {/* Close Button */}
         <button 
           onClick={onClose}
-          className="absolute top-6 right-6 text-white/70 hover:text-white p-2 bg-black/20 hover:bg-black/40 rounded-full transition-colors z-50"
+          className="absolute top-6 right-6 text-gray-700 hover:text-gray-900 p-2 bg-black/20 hover:bg-gray-50 rounded-full transition-colors z-50"
         >
           <X size={28} />
         </button>
@@ -56,7 +56,7 @@ export default function Lightbox({ images, currentIndex, onClose, onNavigate }: 
         {currentIndex > 0 && (
           <button 
             onClick={(e) => { e.stopPropagation(); onNavigate(currentIndex - 1); }}
-            className="absolute left-6 text-white/70 hover:text-white p-4 bg-black/20 hover:bg-black/40 rounded-full transition-colors z-50"
+            className="absolute left-6 text-gray-700 hover:text-gray-900 p-4 bg-black/20 hover:bg-gray-50 rounded-full transition-colors z-50"
           >
             <ChevronLeft size={32} />
           </button>
@@ -66,7 +66,7 @@ export default function Lightbox({ images, currentIndex, onClose, onNavigate }: 
         {currentIndex < images.length - 1 && (
           <button 
             onClick={(e) => { e.stopPropagation(); onNavigate(currentIndex + 1); }}
-            className="absolute right-6 text-white/70 hover:text-white p-4 bg-black/20 hover:bg-black/40 rounded-full transition-colors z-50"
+            className="absolute right-6 text-gray-700 hover:text-gray-900 p-4 bg-black/20 hover:bg-gray-50 rounded-full transition-colors z-50"
           >
             <ChevronRight size={32} />
           </button>
@@ -88,7 +88,7 @@ export default function Lightbox({ images, currentIndex, onClose, onNavigate }: 
             className="max-w-[90vw] max-h-[85vh] object-contain rounded-md shadow-2xl"
           />
           {currentImage.takenAt && (
-            <div className="absolute -bottom-8 text-white/80 font-serif text-sm">
+            <div className="absolute -bottom-8 text-gray-800 font-serif text-sm">
               {formatDate(currentImage.takenAt)}
             </div>
           )}

@@ -50,12 +50,12 @@ export default function EditableTitle({ sectionId, initialTitle }: { sectionId: 
             }
           }}
           disabled={isPending}
-          className="font-serif italic text-4xl md:text-5xl font-semibold text-white bg-black/40 border border-white/30 rounded-xl px-4 py-2 focus:outline-none focus:border-white w-full max-w-xl"
+          className="font-serif italic text-4xl md:text-5xl font-semibold text-gray-900 bg-gray-50 border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:border-gray-300 w-full max-w-xl"
         />
         <button 
           onClick={handleSave} 
           disabled={isPending}
-          className="p-3 bg-green-500/20 hover:bg-green-500 text-green-400 hover:text-white rounded-full transition-colors"
+          className="p-3 bg-green-500/20 hover:bg-green-500 text-green-400 hover:text-gray-900 rounded-full transition-colors"
         >
           <Check size={20} />
         </button>
@@ -65,7 +65,7 @@ export default function EditableTitle({ sectionId, initialTitle }: { sectionId: 
             setTitle(initialTitle);
           }} 
           disabled={isPending}
-          className="p-3 bg-white/10 hover:bg-white/20 text-white/70 hover:text-white rounded-full transition-colors"
+          className="p-3 bg-white hover:bg-white shadow-sm text-gray-700 hover:text-gray-900 rounded-full transition-colors"
         >
           <X size={20} />
         </button>
@@ -75,12 +75,12 @@ export default function EditableTitle({ sectionId, initialTitle }: { sectionId: 
 
   return (
     <div className="group flex items-center gap-4 mb-3">
-      <h1 className="font-serif italic text-5xl font-semibold text-white drop-shadow-md tracking-wide album-title">
+      <h1 className="font-serif italic text-5xl font-semibold text-gray-900 drop-shadow-md tracking-wide album-title">
         {title}
       </h1>
       <button 
         onClick={() => setIsEditing(true)}
-        className="p-2 bg-white/10 hover:bg-white/20 text-white/50 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+        className="p-2 bg-white hover:bg-white shadow-sm text-gray-500 hover:text-gray-900 rounded-full opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
         title="Edit Album Title"
       >
         <Edit2 size={18} />
