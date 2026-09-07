@@ -9,6 +9,9 @@ export default async function HomePage() {
   const session = await auth();
   if (!session?.user?.id) return null;
 
+  // Artificial delay to show off the beautiful custom loader screen
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
   const sections = await prisma.section.findMany({
     where: { userId: session.user.id },
     include: { 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { createSectionAction } from "@/app/actions/createSection";
 
 export default function CreateAlbumForm() {
@@ -58,7 +59,15 @@ export default function CreateAlbumForm() {
       <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
       
       <div className="relative z-10">
-        <h1 className="font-serif italic text-4xl font-semibold text-gray-900 drop-shadow-md mb-8 tracking-wide">Create New Album</h1>
+        <div className="flex items-center gap-4 mb-8">
+          <Link 
+            href="/dashboard"
+            className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </Link>
+          <h1 className="font-serif italic text-4xl font-semibold text-gray-900 drop-shadow-md tracking-wide">Create New Album</h1>
+        </div>
         <form 
           action={async (formData) => {
             setIsPending(true);

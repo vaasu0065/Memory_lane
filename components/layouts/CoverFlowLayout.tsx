@@ -12,8 +12,10 @@ export default function CoverFlowLayout({ images, previewMode = false }: { image
   if (!images || images.length === 0) return null;
 
   return (
-    <div className={`w-full flex flex-col items-center justify-center overflow-hidden relative perspective-[1200px] ${previewMode ? "h-full" : "h-[70vh]"}`}>
-      
+    <div 
+      className={`w-full flex flex-col items-center justify-center relative perspective-[1200px] ${previewMode ? "h-full overflow-visible" : "h-[70vh] overflow-hidden"}`}
+      style={previewMode ? { clipPath: "polygon(0 0, 200vw 0, 200vw 100%, 0 100%)" } : {}}
+    >
       {/* Navigation Buttons */}
       <div className="absolute top-1/2 -translate-y-1/2 left-4 z-20">
         <button 
