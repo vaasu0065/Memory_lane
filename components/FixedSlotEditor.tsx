@@ -6,6 +6,7 @@ import { updateSectionDetails } from "@/app/actions/updateSection";
 import SlotUploader from "./SlotUploader";
 import FamilyClassicLayout from "./purpose-views/FamilyClassicLayout";
 import FamilyMosaicLayout from "./purpose-views/FamilyMosaicLayout";
+import TravelSuitcaseLayout from "./purpose-views/TravelSuitcaseLayout";
 import Link from "next/link";
 import { ChevronLeft, Share } from "lucide-react";
 
@@ -65,6 +66,11 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
       { label: "Tall Vertical (Left)", dbPosition: 6 },
       { label: "Small Square 4", dbPosition: 7 },
     ];
+  } else if (section.theme === "travel-suitcase") {
+    LayoutComponent = TravelSuitcaseLayout;
+    slotsConfig = [
+      { label: "Suitcase Polaroids (10-15)", allowMultiple: true, maxFiles: 15, dbPosition: 0 },
+    ];
   }
 
   if (!LayoutComponent) {
@@ -102,7 +108,7 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
       <div className="w-full md:w-[450px] lg:w-[500px] flex-shrink-0 bg-white border-r border-gray-200 h-screen overflow-y-auto sticky top-0 flex flex-col shadow-2xl z-20">
         
         <div className="p-6 border-b border-gray-100 bg-white sticky top-0 z-10">
-          <Link href="/dashboard" className="text-sm font-semibold text-gray-500 hover:text-gray-900 flex items-center gap-2 mb-6 transition-colors">
+          <Link href="/" className="text-sm font-semibold text-gray-500 hover:text-gray-900 flex items-center gap-2 mb-6 transition-colors">
             <ChevronLeft size={16} /> Back to Dashboard
           </Link>
           

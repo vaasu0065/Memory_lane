@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import type { Metadata, ResolvingMetadata } from "next";
 import FamilyViewPage from "@/components/purpose-views/FamilyViewPage";
 import DefaultViewPage from "@/components/purpose-views/DefaultViewPage";
+import TravelSuitcaseLayout from "@/components/purpose-views/TravelSuitcaseLayout";
 
 type Props = {
   params: { id: string }
@@ -74,6 +74,8 @@ export default async function PublicSharePage({ params }: Props) {
   switch (section.purpose) {
     case "family":
       return <FamilyViewPage section={section} />;
+    case "travel":
+      return <TravelSuitcaseLayout images={section.images} />;
     default:
       return <DefaultViewPage section={section} />;
   }

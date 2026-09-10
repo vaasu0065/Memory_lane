@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Heart, Search, ChevronDown, MoreHorizontal, ArrowRight, Loader2 } from "lucide-react";
@@ -20,6 +20,19 @@ export default function HomeAlbumList({ sections }: { sections: any[] }) {
   const [filter, setFilter] = useState("all");
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      // If clicking outside the active dropdown, close it
+      if (listRef.current && !listRef.current.contains(e.target as Node)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this memory lane? This cannot be undone.")) {
@@ -96,16 +109,23 @@ export default function HomeAlbumList({ sections }: { sections: any[] }) {
       )}
 
       {/* Album List Grid - 4 Columns */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+      <div ref={listRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
         {filteredSections.map((section) => {
-          const coverImage = section.images?.[0]?.displayUrl || "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800";
+          let fallbackCover = "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&q=80&w=800"; // Default (family silhouette)
+          if (section.purpose === "travel") {
+            fallbackCover = "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800"; // Lake/Boat travel vibe
+          } else if (section.purpose === "events") {
+            fallbackCover = "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=800"; // Party/Event vibe
+          }
+
+          const coverImage = section.images?.[0]?.originalUrl || fallbackCover;
           const photoCount = section.images?.length || 0;
           
           return (
-            <div key={section.id} className="group flex flex-col bg-[#fcfbf9] rounded-[1.5rem] border border-[#e8e0d5] overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            <div key={section.id} className="group flex flex-col bg-[#fcfbf9] rounded-[1.5rem] border border-[#e8e0d5] transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
               
               {/* Image Header */}
-              <Link href={`/section/${section.id}`} className="relative aspect-[4/3] w-full overflow-hidden block">
+              <Link href={`/share/${section.id}`} className="relative aspect-[4/3] w-full overflow-hidden block rounded-t-[1.5rem]">
                 <Image 
                   src={coverImage} 
                   alt={section.title} 
@@ -113,11 +133,6 @@ export default function HomeAlbumList({ sections }: { sections: any[] }) {
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/10"></div>
-                
-                {/* Top Right Options */}
-                <button className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/40 transition-colors">
-                  <MoreHorizontal size={16} />
-                </button>
 
                 {/* Bottom Overlay Info */}
                 <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white">
@@ -129,23 +144,59 @@ export default function HomeAlbumList({ sections }: { sections: any[] }) {
               {/* Card Content */}
               <div className="p-5 flex flex-col flex-1">
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <Link href={`/section/${section.id}`}>
+                  <Link href={`/share/${section.id}`}>
                     <h3 className="font-bold text-[#1c1917] text-lg leading-tight hover:text-indigo-600 transition-colors">
                       {section.title}
                     </h3>
                   </Link>
-                  <div className="relative group/delete">
+                  <div className="relative">
                     <button 
-                      onClick={() => handleDelete(section.id)}
-                      disabled={deletingId === section.id}
-                      className="text-[#8a755b] hover:text-red-500 transition-colors"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setActiveDropdown(activeDropdown === section.id ? null : section.id);
+                      }}
+                      className="text-[#8a755b] hover:text-[#1c1917] p-2 -m-1 rounded-md hover:bg-[#e8e0d5] transition-colors relative z-10"
                     >
-                      {deletingId === section.id ? <Loader2 size={16} className="animate-spin" /> : <MoreHorizontal size={16} className="rotate-90" />}
+                      <MoreHorizontal size={18} className="rotate-90" />
                     </button>
-                    {/* Fake tooltip for delete since we replaced the explicit trash icon with the elegant 3-dots to match UI */}
-                    <div className="absolute right-0 top-6 bg-white border border-gray-200 shadow-lg rounded-md px-3 py-1.5 text-xs text-red-600 font-bold opacity-0 invisible group-hover/delete:opacity-100 group-hover/delete:visible transition-all z-10 whitespace-nowrap">
-                      Delete Album
-                    </div>
+                    
+                    {activeDropdown === section.id && (
+                      <div className="absolute right-0 top-8 w-40 bg-white border border-[#e8e0d5] rounded-xl shadow-xl overflow-hidden z-50 flex flex-col py-1 animate-in fade-in zoom-in-95 duration-200">
+                        <Link 
+                          href={`/section/${section.id}`}
+                          className="px-4 py-2 text-sm text-[#1c1917] font-medium hover:bg-[#fcfbf9] transition-colors"
+                        >
+                          Edit Album
+                        </Link>
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(window.location.origin + `/share/${section.id}`);
+                            alert("Link copied to clipboard!");
+                            setActiveDropdown(null);
+                          }}
+                          className="px-4 py-2 text-sm text-[#1c1917] font-medium hover:bg-[#fcfbf9] text-left transition-colors"
+                        >
+                          Share Link
+                        </button>
+                        <div className="h-px bg-[#e8e0d5] my-1 mx-2" />
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDelete(section.id);
+                            setActiveDropdown(null);
+                          }}
+                          disabled={deletingId === section.id}
+                          className="px-4 py-2 text-sm text-red-600 font-bold hover:bg-red-50 text-left transition-colors flex items-center justify-between"
+                        >
+                          Delete
+                          {deletingId === section.id && <Loader2 size={12} className="animate-spin" />}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 

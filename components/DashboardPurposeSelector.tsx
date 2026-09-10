@@ -28,7 +28,7 @@ const PURPOSES = [
   }
 ];
 
-export default function DashboardPurposeSelector() {
+export default function DashboardPurposeSelector({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   return (
     <div className="relative bg-[#faf7f2] rounded-[2rem] p-10 md:p-14 mb-16 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.03)]">
       

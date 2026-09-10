@@ -2,7 +2,7 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-export default function DashboardHero() {
+export default function DashboardHero({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   return (
     <section className="relative w-full pt-12 pb-24 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8">
       {/* Left Column: Typography & Call to Action */}

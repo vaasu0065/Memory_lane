@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, AnimatePresence, useSpring, useMotionV
 import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import Lightbox from "@/components/Lightbox";
 
 interface FamilyClassicLayoutProps {
   images: any[];
@@ -27,7 +28,7 @@ const PLACEHOLDERS = [
 // Hanging Mobile Background Component
 // ---------------------------------------------------------
 
-const PendulumCard = ({ image, index, content, onContentChange, stringOffset }: any) => {
+const PendulumCard = ({ image, index, content, onContentChange, stringOffset, onClick }: any) => {
   const [isHovered, setIsHovered] = useState(false);
   const duration = 4 + index * 0.7; // Different swing speeds
   const stringLength = 100 + (index % 3) * 60; // Varying drop heights
@@ -40,7 +41,7 @@ const PendulumCard = ({ image, index, content, onContentChange, stringOffset }: 
       onMouseLeave={() => setIsHovered(false)}
     >
       <motion.div
-        className="flex flex-col items-center origin-top"
+        className="flex flex-col items-center origin-top cursor-pointer"
         animate={{ 
           rotateZ: isHovered ? [-4, 4, -4] : 0 
         }}
@@ -49,6 +50,7 @@ const PendulumCard = ({ image, index, content, onContentChange, stringOffset }: 
           repeat: isHovered ? Infinity : 0, 
           ease: "easeInOut" 
         }}
+        onClick={onClick}
       >
         {/* The String */}
         <div 
@@ -87,7 +89,7 @@ const PendulumCard = ({ image, index, content, onContentChange, stringOffset }: 
   );
 };
 
-const HangingBranchMobile = ({ images, content, onContentChange }: any) => {
+const HangingBranchMobile = ({ images, fullImages, content, onContentChange, onImageClick }: any) => {
   // Use first 4 images safely
   const safeImages = images.slice(0, 4);
   while(safeImages.length < 4) safeImages.push(PLACEHOLDERS[safeImages.length]);
@@ -100,16 +102,26 @@ const HangingBranchMobile = ({ images, content, onContentChange }: any) => {
       
       {/* The Hanging Cards (Behind the branch) */}
       <div className="absolute top-0 left-0 w-full flex justify-around px-8 lg:px-24 pointer-events-auto z-10">
-        {safeImages.map((img: string, i: number) => (
-          <PendulumCard 
-            key={`hanging-${i}`} 
-            index={i} 
-            image={img} 
-            content={content} 
-            onContentChange={onContentChange} 
-            stringOffset={STRING_OFFSETS[i]}
-          />
-        ))}
+        {safeImages.map((img: any, i: number) => {
+          const originalIndex = fullImages ? fullImages.findIndex((orig: any) => orig.displayUrl === img || orig.url === img) : -1;
+          return (
+            <PendulumCard 
+              key={`hanging-${i}`} 
+              index={i} 
+              image={img.displayUrl || img} 
+              content={content} 
+              onContentChange={onContentChange} 
+              stringOffset={STRING_OFFSETS[i]}
+              onClick={(e: React.MouseEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (originalIndex !== -1 && onImageClick) {
+                  onImageClick(originalIndex);
+                }
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* The Organic Wooden Branch (SVG, in front of the strings) */}
@@ -155,6 +167,14 @@ const HangingBranchMobile = ({ images, content, onContentChange }: any) => {
 
 
 export default function FamilyClassicLayout({ images, title, description, onTitleChange, onDescriptionChange, content = {}, onContentChange }: FamilyClassicLayoutProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isClient, setIsClient] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // Extract images by their designated position slot
   const heroImages = images.filter(img => img.position === 0);
   const displayHeroImages = heroImages.length > 0 ? heroImages.map(i => i.displayUrl) : [PLACEHOLDERS[0]];
@@ -166,7 +186,6 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
     images.filter(img => img.position === 4).map(i => i.displayUrl),
   [images]);
 
-  const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
@@ -194,7 +213,13 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
     <div ref={containerRef} className="relative w-full flex flex-col items-center overflow-hidden pt-12 bg-transparent">
 
       {/* The New Hanging Mobile Background Layer */}
-      <HangingBranchMobile images={displayHeroImages} content={content} onContentChange={onContentChange} />
+      <HangingBranchMobile 
+        images={displayHeroImages} 
+        fullImages={images} 
+        content={content} 
+        onContentChange={onContentChange} 
+        onImageClick={(idx: number) => setLightboxIndex(idx)}
+      />
 
       {/* 1. Split Hero Section */}
       <div className="w-full max-w-7xl mx-auto px-8 mb-32 min-h-[70vh] flex flex-col lg:flex-row items-center gap-16 relative z-20 mt-16">
@@ -358,8 +383,8 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
             >
               {content?.ribbonTitle1 || "A Lifetime"}
             </span>
-            <span
-              className={`text-[#d97706] italic font-medium tracking-normal md:-ml-4 ${onContentChange ? "cursor-text hover:bg-black/5 rounded px-2 -mx-2 transition-colors outline-none block" : "block"}`}
+            <span 
+              className={`font-handwriting text-7xl sm:text-8xl md:text-9xl lg:text-[13rem] text-[#c87b1e] italic mt-2 md:mt-4 block drop-shadow-lg leading-none ${onContentChange ? "cursor-text hover:bg-black/5 rounded px-2 transition-colors outline-none pointer-events-auto" : ""}`}
               contentEditable={!!onContentChange}
               suppressContentEditableWarning={true}
               onBlur={(e) => onContentChange?.('ribbonTitle2', e.currentTarget.textContent || "")}
@@ -367,15 +392,19 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
               {content?.ribbonTitle2 || "Of Love"}
             </span>
           </h2>
-          <div className="w-20 h-1 bg-[#d5c8b5] mb-8 rounded-full" />
-          <p
-            className={`text-lg text-[#5a4d41] font-medium leading-relaxed pointer-events-auto ${onContentChange ? "cursor-text hover:bg-black/5 rounded px-2 -mx-2 transition-colors outline-none block" : "block"}`}
-            contentEditable={!!onContentChange}
-            suppressContentEditableWarning={true}
-            onBlur={(e) => onContentChange?.('ribbonDesc', e.currentTarget.textContent || "")}
+          <motion.p 
+            className="mt-8 md:mt-16 text-sm md:text-lg text-[#5c4a3d] font-medium max-w-lg md:max-w-2xl px-4 bg-[#f8f6f3]/90 py-3 rounded-full backdrop-blur-sm shadow-sm"
+            style={{ y: yLandscape }}
           >
+            <span 
+              className={`inline-block w-full ${onContentChange ? "cursor-text hover:bg-black/5 rounded px-2 transition-colors outline-none pointer-events-auto" : ""}`}
+              contentEditable={!!onContentChange}
+              suppressContentEditableWarning={true}
+              onBlur={(e) => onContentChange?.('ribbonDesc', e.currentTarget.textContent || "")}
+            >
             {content?.ribbonDesc || "May every year bring you closer to everything you're chasing."}
-          </p>
+            </span>
+            </motion.p>
         </motion.div>
 
         {/* Full Screen Ribbon Animation */}
@@ -422,7 +451,7 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
 
           {/* Centered Track Container */}
           <div 
-            className="relative w-[1000px] h-full pointer-events-none ribbon-track"
+            className="relative w-[1000px] h-full ribbon-track"
             onMouseEnter={(e) => {
               const anims = e.currentTarget.getAnimations({ subtree: true });
               anims.forEach(anim => {
@@ -460,8 +489,19 @@ export default function FamilyClassicLayout({ images, title, description, onTitl
                   style={{ '--total': arr.length, '--index': i } as any}
                 >
                   <div
-                    className="ribbon-inner"
+                    className="ribbon-inner cursor-pointer"
                     style={{ '--wave-index': i } as any}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      let originalIndex = images.findIndex(original => original.id === img.id);
+                      if (originalIndex === -1) {
+                        originalIndex = images.findIndex(original => original.url === img.url || original.displayUrl === img.displayUrl);
+                      }
+                      if (originalIndex !== -1) {
+                        setLightboxIndex(originalIndex);
+                      }
+                    }}
                   >
                     <Image
                       src={img.displayUrl}
@@ -924,8 +964,34 @@ const ScrapbookViewer = React.memo(function ScrapbookViewer({ images, content, o
 
   return (
     <div className="w-full relative py-32 bg-[#fdfbf7] overflow-hidden mb-40 scrapbook-flipbook-wrapper">
+      
+      {/* Background Doodles */}
+      <div className="absolute inset-0 pointer-events-none z-0 opacity-60">
+        {/* Top left heart */}
+        <svg className="absolute top-10 left-10 w-20 h-20 text-[#cbb59c] -rotate-12" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M50,85 C50,85 15,55 15,35 C15,20 30,15 40,25 C50,35 50,35 50,35 C50,35 50,35 60,25 C70,15 85,20 85,35 C85,55 50,85 50,85 Z" />
+        </svg>
 
-      <div className="relative w-full max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center lg:items-center gap-12 lg:gap-16 px-4 md:px-12 z-10">
+        {/* Top right stars */}
+        <svg className="absolute top-20 right-20 w-16 h-16 text-[#cbb59c] rotate-12" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M50,10 L60,40 L90,50 L60,60 L50,90 L40,60 L10,50 L40,40 Z" />
+          <path d="M20,20 L25,30 L35,35 L25,40 L20,50 L15,40 L5,35 L15,30 Z" className="scale-50 origin-center translate-x-8 -translate-y-8" />
+        </svg>
+
+        {/* Bottom left swirl */}
+        <svg className="absolute bottom-20 left-[15%] w-24 h-24 text-[#cbb59c] rotate-45" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M10,50 Q25,10 40,50 T70,50 T95,30" />
+        </svg>
+
+        {/* Bottom right paper plane */}
+        <svg className="absolute bottom-10 right-[10%] w-24 h-24 text-[#cbb59c] -rotate-12" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M10,50 L90,10 L50,90 L40,60 Z" />
+          <path d="M40,60 L55,45" />
+          <path d="M10,50 Q30,60 50,90" strokeDasharray="4 4" />
+        </svg>
+      </div>
+
+      <div className="relative w-full max-w-[1500px] mx-auto flex flex-col lg:flex-row items-center lg:items-center gap-12 lg:gap-32 xl:gap-40 px-4 md:px-12 z-10">
 
         {/* Editable Header for Scrapbook Section (Left Side) */}
         <div className="w-full lg:w-1/3 flex flex-col items-center lg:items-start text-center lg:text-left">

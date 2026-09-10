@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Image as PrismaImage } from "@prisma/client";
@@ -25,7 +26,12 @@ export default function Lightbox({ images, currentIndex, onClose, onNavigate }: 
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentIndex, images.length, onClose, onNavigate]);
 
-  if (currentIndex === null) return null;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (currentIndex === null || !mounted) return null;
 
   const currentImage = images[currentIndex];
 
@@ -35,7 +41,7 @@ export default function Lightbox({ images, currentIndex, onClose, onNavigate }: 
     return `${d.getUTCMonth() + 1}/${d.getUTCDate()}/${d.getUTCFullYear()}`;
   };
 
-  return (
+  const lightboxContent = (
     <AnimatePresence>
       <motion.div 
         initial={{ opacity: 0 }}
@@ -96,4 +102,6 @@ export default function Lightbox({ images, currentIndex, onClose, onNavigate }: 
       </motion.div>
     </AnimatePresence>
   );
+
+  return createPortal(lightboxContent, document.body);
 }
