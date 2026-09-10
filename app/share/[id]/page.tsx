@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { getLayoutComponent } from "@/lib/theme-to-layout";
 import Link from "next/link";
 import type { Metadata, ResolvingMetadata } from "next";
+import FamilyViewPage from "@/components/purpose-views/FamilyViewPage";
+import DefaultViewPage from "@/components/purpose-views/DefaultViewPage";
 
 type Props = {
   params: { id: string }
@@ -23,7 +24,7 @@ export async function generateMetadata(
     include: {
       images: {
         take: 1,
-        orderBy: { uploadedAt: "asc" }
+        orderBy: { position: "asc" }
       }
     }
   });
@@ -61,66 +62,19 @@ export default async function PublicSharePage({ params }: Props) {
         { shareSlug: idOrSlug }
       ]
     },
-    include: { images: { include: { notes: true }, orderBy: { uploadedAt: "asc" } } },
+    include: { 
+      images: { include: { notes: true }, orderBy: { position: "asc" } },
+      stickyNotes: true,
+    },
   });
 
   if (!section) notFound();
 
-  const Layout = getLayoutComponent(section.theme);
-
-  return (
-    <div className="min-h-screen max-w-7xl mx-auto overflow-hidden px-8">
-      {(section as any).customCssUrl && (
-        <link rel="stylesheet" href={(section as any).customCssUrl} />
-      )}
-
-      {/* Floating Header */}
-      <header className="fixed top-8 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl z-50 flex justify-between items-center bg-gray-50 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-white/10 px-8 py-4 rounded-full">
-        <div>
-          <h1 className="font-serif text-2xl md:text-3xl font-bold text-gray-900 drop-shadow-md tracking-wide">
-            {section.title}
-          </h1>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="px-2 py-0.5 rounded-full bg-white shadow-sm text-[10px] font-bold text-gray-900 uppercase tracking-widest shadow-sm">
-              {section.theme}
-            </span>
-            <span className="text-xs font-medium text-gray-700">
-              • {section.images.length} memories
-            </span>
-          </div>
-        </div>
-        
-        <Link 
-          href="/login" 
-          className="bg-white/90 text-black hover:bg-white px-5 py-2.5 rounded-full font-medium transition-all shadow-sm hidden md:block"
-        >
-          Create your own
-        </Link>
-      </header>
-
-      {section.images.length > 0 ? (
-        <div className="w-full py-8 relative pt-[120px]">
-          <Layout 
-            images={section.images}
-            albumTitle={section.title}
-            albumPurpose={section.purpose || undefined}
-          />
-        </div>
-      ) : (
-        <div className="flex items-center justify-center h-screen text-gray-500 text-xl font-serif italic">
-          This album is empty.
-        </div>
-      )}
-
-      {/* Mobile CTA */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 md:hidden">
-         <Link 
-          href="/login" 
-          className="bg-white/90 text-black hover:bg-white px-6 py-3 rounded-full font-medium transition-all shadow-lg text-sm whitespace-nowrap"
-        >
-          Create your own Memory Lane
-        </Link>
-      </div>
-    </div>
-  );
+  // Dispatch to Dedicated Purpose Views
+  switch (section.purpose) {
+    case "family":
+      return <FamilyViewPage section={section} />;
+    default:
+      return <DefaultViewPage section={section} />;
+  }
 }

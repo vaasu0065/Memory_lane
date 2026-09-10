@@ -46,7 +46,7 @@ export default function GlobalLoader() {
         </div>
 
         {/* Full-width Cinematic Filmstrip Area */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-full h-48 md:h-72 overflow-hidden bg-black/5 shadow-2xl">
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-full h-36 md:h-56 overflow-hidden bg-black/5 shadow-2xl">
           
           {/* Scrolling Track */}
           <div 
@@ -72,7 +72,7 @@ export default function GlobalLoader() {
         </div>
 
         {/* Loading Text and Progress Bar (Positioned below the filmstrip) */}
-        <div className="relative z-20 flex flex-col items-center mt-80 md:mt-[26rem]">
+        <div className="relative z-20 flex flex-col items-center mt-64 md:mt-80">
           <h2 
             className="font-serif italic text-3xl text-[#1f2937] mb-2 tracking-wide"
             style={{ animation: "pulseText 2s infinite ease-in-out" }}

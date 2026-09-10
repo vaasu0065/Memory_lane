@@ -98,6 +98,16 @@ export default function CreateAlbumForm() {
           </div>
 
           <div>
+            <label className="block text-sm font-medium text-gray-800 mb-2 uppercase tracking-wider">Your Thoughts (Optional)</label>
+            <textarea 
+              name="description" 
+              placeholder="These are some of my favorite moments..." 
+              rows={3}
+              className="w-full p-4 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-all shadow-inner resize-none" 
+            />
+          </div>
+
+          <div>
             <label className="block text-sm font-medium text-gray-800 mb-2 uppercase tracking-wider">Starting Theme (3D Layout)</label>
             <select 
               name="theme" 

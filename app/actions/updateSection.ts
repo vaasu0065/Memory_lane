@@ -65,7 +65,7 @@ export async function updateCustomCss(sectionId: string, customCssUrl: string) {
   return { success: true };
 }
 
-export async function updateSectionTitle(sectionId: string, title: string) {
+export async function updateSectionDetails(sectionId: string, title: string, description: string, content?: any) {
   const session = await auth();
   if (!session?.user?.id) {
     return { error: "Unauthorized" };
@@ -79,9 +79,16 @@ export async function updateSectionTitle(sectionId: string, title: string) {
     return { error: "Unauthorized or not found" };
   }
 
+  const dataToUpdate: any = { title, description };
+  if (content !== undefined) {
+    // Merge new content with existing content if it exists
+    const existingContent = (section as any).content ? (typeof (section as any).content === 'object' ? (section as any).content : JSON.parse((section as any).content as string)) : {};
+    dataToUpdate.content = { ...existingContent, ...content };
+  }
+
   await prisma.section.update({
     where: { id: sectionId },
-    data: { title },
+    data: dataToUpdate,
   });
 
   revalidatePath(`/section/${sectionId}`);

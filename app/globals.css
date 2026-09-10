@@ -27,3 +27,27 @@
     scrollbar-width: none;
   }
 }
+
+.scrapbook-flipbook {
+  user-select: none;
+  -webkit-user-select: none;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.scrapbook-flipbook * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.scrapbook-flipbook img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  user-select: none;
+}
+
+/* Force the internal HTMLFlipBook wrapper to center itself */
+.stf__wrapper {
+  margin: 0 auto !important;
+}

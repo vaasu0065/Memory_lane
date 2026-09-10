@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Fraunces } from "next/font/google";
+import { Inter, Fraunces, Great_Vibes } from "next/font/google";
 import "./globals.css";
 const inter = Inter({
   subsets: ["latin"],
@@ -10,6 +10,13 @@ const inter = Inter({
 const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-fraunces",
+  display: "swap",
+});
+
+const handwriting = Great_Vibes({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-handwriting",
   display: "swap",
 });
 
@@ -25,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${fraunces.variable} antialiased`}>
+      <body className={`${inter.variable} ${fraunces.variable} ${handwriting.variable} font-sans antialiased text-slate-900 bg-[#f8f6f3]`}>
         {children}
       </body>
     </html>

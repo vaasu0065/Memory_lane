@@ -1,36 +1,54 @@
 "use client";
 
 import Link from "next/link";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Sun } from "lucide-react";
 
 export default function Navbar({ signOutAction }: { signOutAction: () => void }) {
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl z-50 bg-white/80 backdrop-blur-md border border-gray-200 shadow-sm rounded-full px-8 py-2">
-      <div className="h-16 flex items-center justify-between">
-        <Link href="/home" className="font-serif text-2xl font-bold tracking-tight text-gray-900">
-          Memory Lane
+    <nav className="absolute top-0 left-0 w-full z-50 px-8 py-6">
+      <div className="max-w-[1600px] mx-auto flex items-center justify-between">
+        {/* Logo Section */}
+        <Link href="/home" className="flex items-center gap-3 group">
+          <Sun size={24} className="text-[#2c241b] fill-[#2c241b]" />
+          <span className="font-serif text-2xl font-black tracking-tight text-[#2c241b]">
+            Memory Lane
+          </span>
         </Link>
-        <div className="flex items-center gap-6">
-          <Link 
-            href="/section/new" 
-            className="hidden md:block text-sm font-medium text-slate-600 hover:text-indigo-900 transition-colors"
-          >
-            New Album
+
+        {/* Centered Links */}
+        <div className="hidden md:flex items-center gap-8 text-[#5a4d41] font-medium text-sm tracking-wide">
+          <Link href="/dashboard" className="relative text-[#2c241b] transition-colors">
+            Home
+            <span className="absolute -bottom-1.5 left-0 w-full h-[1px] bg-[#2c241b]"></span>
           </Link>
+          <Link href="/dashboard" className="hover:text-[#2c241b] transition-colors">
+            Albums
+          </Link>
+          <Link href="/dashboard" className="hover:text-[#2c241b] transition-colors">
+            Map
+          </Link>
+          <Link href="/dashboard" className="hover:text-[#2c241b] transition-colors">
+            Favorites
+          </Link>
+        </div>
+
+        {/* Actions Section */}
+        <div className="flex items-center gap-4">
           <div className="group relative">
-            <button className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-900 p-1.5 pr-4 rounded-full transition-all shadow-sm hover:shadow-md">
-              <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center border border-indigo-100">
-                <User size={16} />
+            <button className="flex items-center gap-2 text-[#2c241b] p-1 pr-3 rounded-full transition-all duration-300 hover:bg-black/5">
+              <div className="w-8 h-8 bg-[#e8e0d5] text-[#5a4d41] rounded-full flex items-center justify-center overflow-hidden">
+                <img src="https://ui-avatars.com/api/?name=User&background=e8e0d5&color=5a4d41" alt="Profile" className="w-full h-full object-cover" />
               </div>
-              <span className="text-sm font-medium">Profile</span>
+              <span className="text-sm font-semibold tracking-wide">Profile</span>
             </button>
             
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform origin-top-right z-50">
+            {/* Dropdown Menu */}
+            <div className="absolute right-0 mt-3 w-56 bg-white/95 backdrop-blur-xl border border-[#e8e0d5] rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right z-50">
                <div className="p-2">
                  <form action={signOutAction}>
-                   <button type="submit" className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors">
-                     <LogOut size={16} />
-                     Sign out
+                   <button type="submit" className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-colors">
+                     <LogOut size={18} />
+                     Sign out securely
                    </button>
                  </form>
                </div>

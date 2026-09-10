@@ -60,10 +60,12 @@ model Section {
   user           User         @relation(fields: [userId], references: [id])
   title          String
   purpose        String       @default("other")
+  description    String?
   theme          String
   layoutType     String
   backgroundUrl  String?
   customCssUrl   String?
+  content        Json?
   isPublic       Boolean      @default(false)
   shareSlug      String?      @unique
   images         Image[]

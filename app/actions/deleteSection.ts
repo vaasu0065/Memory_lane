@@ -40,6 +40,7 @@ export async function deleteSection(sectionId: string) {
   });
 
   revalidatePath('/home');
+  revalidatePath('/dashboard');
 
   return { success: true };
 }
