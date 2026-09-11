@@ -96,3 +96,28 @@ export async function updateSectionDetails(sectionId: string, title: string, des
 
   return { success: true };
 }
+
+export async function updateSectionTitle(sectionId: string, title: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const section = await prisma.section.findUnique({
+    where: { id: sectionId },
+  });
+
+  if (!section || section.userId !== session.user.id) {
+    return { success: false, error: "Unauthorized or not found" };
+  }
+
+  await prisma.section.update({
+    where: { id: sectionId },
+    data: { title },
+  });
+
+  revalidatePath(`/section/${sectionId}`);
+  revalidatePath('/home');
+
+  return { success: true };
+}

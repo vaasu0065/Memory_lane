@@ -8,7 +8,7 @@ import FamilyClassicLayout from "./purpose-views/FamilyClassicLayout";
 import FamilyMosaicLayout from "./purpose-views/FamilyMosaicLayout";
 import TravelSuitcaseLayout from "./purpose-views/TravelSuitcaseLayout";
 import Link from "next/link";
-import { ChevronLeft, Share } from "lucide-react";
+import { ChevronLeft, Share, X, Edit3 } from "lucide-react";
 
 interface FixedSlotEditorProps {
   section: any;
@@ -24,6 +24,7 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
   const [content, setContent] = useState<any>(initialContent);
   
   const [isPending, startTransition] = useTransition();
+  const [isMobileEditorOpen, setIsMobileEditorOpen] = useState(false);
 
   const handleUploadComplete = () => {
     router.refresh();
@@ -70,6 +71,9 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
     LayoutComponent = TravelSuitcaseLayout;
     slotsConfig = [
       { label: "Suitcase Polaroids (10-15)", allowMultiple: true, maxFiles: 15, dbPosition: 0 },
+      { label: "Map Journey (10-15 images)", allowMultiple: true, maxFiles: 15, dbPosition: 1 },
+      { label: "3D Tunnel Experience (8-24 images)", allowMultiple: true, maxFiles: 24, dbPosition: 2 },
+      { label: "3D Vintage Astrolabe (up to 12 images)", allowMultiple: true, maxFiles: 12, dbPosition: 3 },
     ];
   }
 
@@ -102,13 +106,38 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
   const progress = Math.round((completedSlots / totalSlots) * 100);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+    <div className="h-screen w-full bg-gray-50 flex overflow-hidden">
       
-      {/* LEFT: The Editor Panel */}
-      <div className="w-full md:w-[450px] lg:w-[500px] flex-shrink-0 bg-white border-r border-gray-200 h-screen overflow-y-auto sticky top-0 flex flex-col shadow-2xl z-20">
+      {/* MOBILE FLOATING ACTION BUTTON */}
+      <button 
+        className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-30 bg-black text-white px-8 py-3.5 rounded-full shadow-[0_10px_20px_rgba(0,0,0,0.3)] font-bold tracking-widest text-sm flex items-center gap-2 active:scale-95 transition-transform"
+        onClick={() => setIsMobileEditorOpen(true)}
+      >
+        <Edit3 size={18} /> EDIT ALBUM
+      </button>
+
+      {/* LEFT: The Editor Panel (Slide-up Drawer on Mobile, Sidebar on Desktop) */}
+      <div className={`
+        fixed inset-0 z-40 bg-white flex flex-col transition-transform duration-500 cubic-bezier(0.32, 0.72, 0, 1)
+        md:relative md:w-[450px] lg:w-[500px] md:translate-y-0 md:h-screen md:border-r md:border-gray-200 md:shadow-2xl md:flex-shrink-0
+        ${isMobileEditorOpen ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}
+      `}>
         
-        <div className="p-6 border-b border-gray-100 bg-white sticky top-0 z-10">
-          <Link href="/" className="text-sm font-semibold text-gray-500 hover:text-gray-900 flex items-center gap-2 mb-6 transition-colors">
+        {/* Mobile Header with Close Button */}
+        <div className="md:hidden flex justify-between items-center p-5 border-b border-gray-100 bg-white shrink-0">
+          <span className="font-bold uppercase tracking-widest text-sm">Edit Album</span>
+          <button 
+            onClick={() => setIsMobileEditorOpen(false)}
+            className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Scrollable Main Area */}
+        <div className="flex-1 overflow-y-auto flex flex-col">
+          <div className="p-6 border-b border-gray-100 bg-white shrink-0">
+          <Link href="/" className="text-sm font-semibold text-gray-500 hover:text-gray-900 hidden md:flex items-center gap-2 mb-6 transition-colors">
             <ChevronLeft size={16} /> Back to Dashboard
           </Link>
           
@@ -151,10 +180,10 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
             <span>{completedSlots} of {totalSlots}</span>
             <span>{progress}%</span>
           </div>
-        </div>
+          </div>
 
-        <div className="p-6 space-y-4 flex-1">
-          {slotsConfig.map((slot, index) => {
+          <div className="p-6 space-y-4 bg-gray-50/50 flex-1">
+            {slotsConfig.map((slot, index) => {
             const images = imagesByPosition[slot.dbPosition] || [];
             return (
               <SlotUploader 
@@ -170,9 +199,10 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
               />
             );
           })}
+          </div>
         </div>
 
-        <div className="p-6 border-t border-gray-100 bg-gray-50 sticky bottom-0">
+        <div className="p-6 border-t border-gray-100 bg-gray-50 shrink-0">
           <Link 
             href={`/share/${section.shareSlug || section.id}`}
             target="_blank"
@@ -185,7 +215,7 @@ export default function FixedSlotEditor({ section }: FixedSlotEditorProps) {
 
       {/* RIGHT: Live Preview (Scaled Down to fit) */}
       <div className="flex-1 h-screen overflow-y-auto bg-[#fdfbf7] relative">
-        <div className="absolute top-4 left-4 z-50 bg-black/80 text-white text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full backdrop-blur-md">
+        <div className="absolute top-4 left-4 z-20 bg-black/80 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full backdrop-blur-md pointer-events-none">
           Live Preview
         </div>
         

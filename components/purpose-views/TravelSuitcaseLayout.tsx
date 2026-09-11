@@ -5,6 +5,10 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import TravelMapLayout from "./TravelMapLayout";
+import TravelTunnelLayout from "./TravelTunnelLayout";
+import TravelAstrolabeLayout from "./TravelAstrolabeLayout";
+import InlineEditableText from "@/components/InlineEditableText";
 
 /* ── PLACEHOLDER DATA ── */
 const PLACEHOLDERS = [
@@ -101,7 +105,23 @@ function Polaroid({ img, label, scatter, isOpen }: { img: string; label: string;
 }
 
 /* ── MAIN COMPONENT ── */
-export default function TravelSuitcaseLayout({ images = [] }: { images?: any[] }) {
+export default function TravelSuitcaseLayout({ 
+  images = [],
+  title,
+  description,
+  content = {},
+  onTitleChange,
+  onDescriptionChange,
+  onContentChange 
+}: { 
+  images?: any[];
+  title?: string;
+  description?: string;
+  content?: any;
+  onTitleChange?: (val: string) => void;
+  onDescriptionChange?: (val: string) => void;
+  onContentChange?: (key: string, val: string) => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
 
@@ -142,8 +162,9 @@ export default function TravelSuitcaseLayout({ images = [] }: { images?: any[] }
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#0a0705] overflow-hidden font-sans">
-      {/* Back Button */}
+    <main className="w-full bg-[#0a0705] overflow-x-hidden">
+      <div className="relative min-h-screen w-full font-sans">
+        {/* Back Button */}
       <div className="absolute top-6 left-6 lg:top-10 lg:left-10 z-[100]">
         <Link href="/" className="flex items-center gap-2 text-sm font-semibold text-[#e8dcc5]/60 hover:text-[#e8dcc5] transition-colors bg-black/20 hover:bg-black/40 px-4 py-2 rounded-full backdrop-blur-md border border-white/5 shadow-xl">
           <ChevronLeft size={16} />
@@ -189,25 +210,44 @@ export default function TravelSuitcaseLayout({ images = [] }: { images?: any[] }
       <div className="relative min-h-screen w-full flex flex-col lg:flex-row items-center justify-between z-10 px-8 lg:px-16 pt-24 lg:pt-0 pb-32 lg:pb-0 gap-8">
 
         {/* ── LEFT COLUMN: HERO TEXT ── */}
-        <div className="flex-1 w-full max-w-lg flex flex-col items-start justify-center z-20 pointer-events-none select-none">
-          <motion.span initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+        <div className="flex-1 w-full max-w-lg flex flex-col items-start justify-center z-20 select-none">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
             className="text-[10px] md:text-xs font-bold uppercase tracking-[0.5em] text-[#b49877] block mb-4">
-            Your Memories. Your Journey.
-          </motion.span>
+            <InlineEditableText
+              value={content?.suitcaseSubtitle || "Your Memories. Your Journey."}
+              onChange={(val) => onContentChange && onContentChange("suitcaseSubtitle", val)}
+              as="span"
+            />
+          </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 1 }}
             className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold text-[#f7f1e6] leading-tight drop-shadow-2xl mb-4"
             style={{ textShadow: "0 10px 40px rgba(0,0,0,0.8)" }}>
-            Collect <br /><span className="italic text-[#d4a96a]">Moments,</span><br />Not Things
+            <InlineEditableText
+              value={title || "Collect\nMoments,\nNot Things"}
+              onChange={(val) => onTitleChange && onTitleChange(val)}
+              as="p"
+              className="whitespace-pre-line"
+            />
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 1 }}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 1 }}
             className="font-serif italic text-[#c4b5a3] text-lg max-w-sm">
-            Every adventure, beautifully preserved inside.
-          </motion.p>
+            <InlineEditableText
+              value={description || "Every adventure, beautifully preserved inside."}
+              onChange={(val) => onDescriptionChange && onDescriptionChange(val)}
+              as="p"
+              className="whitespace-pre-line"
+            />
+          </motion.div>
 
           <motion.div initial={{ opacity: 0, rotate: -6 }} animate={{ opacity: 0.8, rotate: -4 }} transition={{ delay: 1.8 }}
-            className="mt-12 font-handwriting text-3xl md:text-4xl text-[#d9ceb8] drop-shadow-sm pointer-events-none select-none"
+            className="mt-12 font-handwriting text-3xl md:text-4xl text-[#d9ceb8] drop-shadow-sm select-none"
           >
-            Same Places,<br />Different You ♥
+            <InlineEditableText
+              value={content?.suitcaseQuote || "Same Places,\nDifferent You ♥"}
+              onChange={(val) => onContentChange && onContentChange("suitcaseQuote", val)}
+              as="p"
+              className="whitespace-pre-line"
+            />
           </motion.div>
 
           {/* ── HELPER TEXT ── */}
@@ -372,12 +412,27 @@ export default function TravelSuitcaseLayout({ images = [] }: { images?: any[] }
         className="absolute bottom-8 left-0 w-full flex justify-center z-50 pointer-events-none"
         initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}
       >
-        <div className="flex flex-wrap items-center justify-center gap-10 md:gap-16 bg-[#1a120e]/60 backdrop-blur-md px-12 py-5 rounded-full border border-white/5 shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
-          {[["12", "Countries"], ["250+", "Memories"], ["35", "Cities"], ["Countless", "Stories"]].map(([val, lbl], i, arr) => (
-            <React.Fragment key={lbl}>
+        <div className="flex flex-wrap items-center justify-center gap-10 md:gap-16 bg-[#1a120e]/60 backdrop-blur-md px-12 py-5 rounded-full border border-white/5 shadow-[0_20px_40px_rgba(0,0,0,0.5)] pointer-events-auto">
+          {[
+            { vKey: "statVal0", lKey: "statLbl0", defVal: "12", defLbl: "Countries" },
+            { vKey: "statVal1", lKey: "statLbl1", defVal: "250+", defLbl: "Memories" },
+            { vKey: "statVal2", lKey: "statLbl2", defVal: "35", defLbl: "Cities" },
+            { vKey: "statVal3", lKey: "statLbl3", defVal: "Countless", defLbl: "Stories" },
+          ].map(({ vKey, lKey, defVal, defLbl }, i, arr) => (
+            <React.Fragment key={vKey}>
               <div className="flex flex-col items-center">
-                <span className="text-xl md:text-2xl font-serif text-[#e5d5be] italic">{val}</span>
-                <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-[#8a755b] mt-1">{lbl}</span>
+                <span className="text-xl md:text-2xl font-serif text-[#e5d5be] italic">
+                  <InlineEditableText
+                    value={content?.[vKey] || defVal}
+                    onChange={(val) => onContentChange && onContentChange(vKey, val)}
+                  />
+                </span>
+                <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-[#8a755b] mt-1">
+                  <InlineEditableText
+                    value={content?.[lKey] || defLbl}
+                    onChange={(val) => onContentChange && onContentChange(lKey, val)}
+                  />
+                </span>
               </div>
               {i < arr.length - 1 && <div className="w-px h-8 bg-white/10" />}
             </React.Fragment>
@@ -385,6 +440,16 @@ export default function TravelSuitcaseLayout({ images = [] }: { images?: any[] }
         </div>
       </motion.div>
 
-    </div>
+      </div>
+
+      {/* ── SECTION 2: TRAVEL MAP ── */}
+      <TravelMapLayout images={images} content={content} onContentChange={onContentChange} />
+
+      {/* ── SECTION 3: 3D INFINITE TUNNEL ── */}
+      <TravelTunnelLayout images={images} content={content} onContentChange={onContentChange} />
+
+      {/* ── SECTION 4: 3D ASTROLABE ── */}
+      <TravelAstrolabeLayout images={images} content={content} onContentChange={onContentChange} />
+    </main>
   );
 }
